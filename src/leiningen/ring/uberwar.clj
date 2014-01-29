@@ -40,6 +40,7 @@
   (with-open [war-stream (war/create-war project war-path)]
     (doto war-stream
       (war/str-entry "WEB-INF/web.xml" (war/make-web-xml project))
+      (war/str-entry "META-INF/context.xml" (war/make-context-xml project))
       (war/dir-entry project "WEB-INF/classes/" (:compile-path project)))
     (doseq [path (distinct (concat [(:source-path project)] (:source-paths project)
                                    [(:resources-path project)] (:resource-paths project)))

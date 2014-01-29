@@ -112,6 +112,14 @@
             [:servlet-name (servlet-name project)]
             [:url-pattern (url-pattern project)]]])))))
 
+(defn make-context-xml [project]
+  (let [ring-options (:ring project)]
+    (if (contains? ring-options :context-xml)
+      (slurp (:context-xml ring-options))
+      (indent-str
+        (sexp-as-element
+          [:Context])))))
+
 (defn generate-handler [project handler-sym]
   (if (get-in project [:ring :servlet-path-info?] true)
     `(fn [request#]
@@ -189,6 +197,7 @@
   (with-open [war-stream (create-war project war-path)]
     (doto war-stream
       (str-entry "WEB-INF/web.xml" (make-web-xml project))
+      (str-entry "META-INF/context.xml" (make-context-xml project))
       (dir-entry project "WEB-INF/classes/" (:compile-path project)))
     (doseq [path (distinct (concat [(:source-path project)] (:source-paths project)
                                    [(:resources-path project)] (:resource-paths project)))
